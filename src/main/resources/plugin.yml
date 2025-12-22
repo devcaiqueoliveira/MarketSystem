@@ -1,0 +1,4 @@
+name: Market
+version: '1.0-SNAPSHOT'
+main: br.com.bahas.market.Market
+api-version: '1.21'
