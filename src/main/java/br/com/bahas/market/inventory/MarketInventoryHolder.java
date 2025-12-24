@@ -1,16 +1,22 @@
 package br.com.bahas.market.inventory;
 
-import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.jetbrains.annotations.NotNull;
 
-@Getter
 public class MarketInventoryHolder implements InventoryHolder {
 
-    private Inventory inventory;
+    private static Inventory inventory;
 
     public MarketInventoryHolder() {
-        this.inventory = Bukkit.createInventory(this, 54, "Mercado");
+        inventory = Bukkit.createInventory(this, 54, "Mercado");
     }
+
+    @NotNull
+    @Override
+    public Inventory getInventory() {
+        return inventory;
+    }
+
 }
