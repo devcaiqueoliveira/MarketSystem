@@ -1,0 +1,18 @@
+prefix: "[BMKT]"
+
+
+messages:
+  errors:
+    only-players: "<red>Apenas jogadores podem executar este comando."
+    invalid-args: "<red>Uso incorreto. Tente: <yellow>/mercado vender <preco>"
+    invalid-price: "<red>O preço inserido não é válido."
+    no-item: "<red>Você precisa estar segurando o item na sua mão."
+    item-already-sold: "<red>Este item já foi vendido."
+    cannot-buy-own: "<red>Você não pode comprar seu próprio item."
+    insufficient-funds: "<red>Você não tem dinheiro suficiente. Saldo: <yellow><balance>"
+
+  success:
+    item-listed: "<green>Item colocado à venda por <gold>$<price><green>"
+    item-bought: "<green>Você comprou o item por <gold>$<price><green>"
+    item-removed: "<green>Item retirado do mercado."
+    reload: "Reinicializção concluída."

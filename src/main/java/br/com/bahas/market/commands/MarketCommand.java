@@ -1,12 +1,12 @@
 package br.com.bahas.market.commands;
 
-import br.com.bahas.market.Market;
+import br.com.bahas.market.config.MessageConfig;
 import br.com.bahas.market.entities.MarketItem;
 import br.com.bahas.market.inventory.MarketInventoryHolder;
+import br.com.bahas.market.mapper.MarketItemMapper;
 import br.com.bahas.market.service.MarketInventoryService;
-import br.com.bahas.market.utils.ItemBuilder;
-import br.com.bahas.market.utils.MarketKeys;
 import lombok.AllArgsConstructor;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,11 +14,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -28,7 +26,10 @@ public class MarketCommand implements CommandExecutor {
 
     private final MarketInventoryHolder inventoryHolder = new MarketInventoryHolder();
 
+    private final MessageConfig messageConfig;
+
     private final JavaPlugin plugin;
+
 
     @Override
     public boolean onCommand(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String @NotNull [] args) {
@@ -42,8 +43,9 @@ public class MarketCommand implements CommandExecutor {
 
         switch (args[0].toLowerCase()) {
             case "vender" -> handleSell(player, args);
-            case "retirar" -> {
-                // logica de retirar item
+            case "reload" -> {
+                messageConfig.reload();
+                messageConfig.send(player, "messages.success.reload");
             }
             default -> {
                 player.sendMessage("Opção inválida.");
@@ -56,49 +58,35 @@ public class MarketCommand implements CommandExecutor {
 
     private void handleSell(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage("Uso: /mercado vender <preco>");
+            messageConfig.send(player, "messages.errors.invalid-args");
             return;
         }
 
         ItemStack handItem = player.getInventory().getItemInMainHand();
         if (handItem.getType() == Material.AIR) {
-            player.sendMessage("Você precisa ter um item na mão");
+            messageConfig.send(player, "messages.errors.no-item");
             return;
         }
 
         try {
+
             double price = Double.parseDouble(args[1]);
             UUID transactionId = UUID.randomUUID();
 
-            MarketItem marketItem = MarketItem.builder()
-                    .itemStack(handItem.clone())
-                    .sellerUUID(player.getUniqueId())
-                    .price(price)
-                    .timeStamp(System.currentTimeMillis())
-                    .transactionUUID(transactionId)
-                    .build();
+            MarketItem marketItem = MarketItemMapper.toMarketItem(handItem, player.getUniqueId(), price);
 
             marketInventoryService.addItemOnMarket(marketItem);
 
-            ItemStack visualItem = ItemBuilder.from(plugin, handItem.clone())
-                    .lore(List.of(
-                            "",
-                            "<gray>Preço: <green>$" + price,
-                            "<gray>Vendedor: <yellow>" + player.getName(),
-                            "",
-                            "<yellow>Clique para comprar!"
-                    ))
-                    .pdc(MarketKeys.PRICE, PersistentDataType.DOUBLE, price)
-                    .pdc(MarketKeys.TRANSACTION_ID, PersistentDataType.STRING, transactionId.toString())
-                    .pdc(MarketKeys.SELLER_ID, PersistentDataType.STRING, player.getUniqueId().toString())
-                    .build();
+            ItemStack visualItem = MarketItemMapper.toVisualItem(plugin, marketItem);
 
             inventoryHolder.getInventory().addItem(visualItem);
 
             player.getInventory().setItemInMainHand(null);
-            player.sendMessage("§aItem colocado à venda por $" + price);
+            messageConfig.send(player, "messages.success.item-listed",
+                    Placeholder.parsed("price", String.valueOf(price)));
+
         } catch (NumberFormatException e) {
-            player.sendMessage("§cPreço inválido.");
+            messageConfig.send(player, "messages.errors.invalid-price");
         }
     }
 }

@@ -5,6 +5,8 @@ import br.com.bahas.market.repository.MarketRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class MarketInventoryCache implements MarketRepository {
 
@@ -14,7 +16,6 @@ public class MarketInventoryCache implements MarketRepository {
     public void add(MarketItem marketItem) {
         items.add(marketItem);
     }
-
     @Override
     public void remove(MarketItem marketItem) {
         items.remove(marketItem);
@@ -23,5 +24,12 @@ public class MarketInventoryCache implements MarketRepository {
     @Override
     public List<MarketItem> listAll() {
         return new ArrayList<>(items);
+    }
+
+    @Override
+    public Optional<MarketItem> findByTransactionId(UUID uuid) {
+        return listAll().stream()
+                .filter(item -> item.getTransactionUUID().equals(uuid))
+                .findFirst();
     }
 }

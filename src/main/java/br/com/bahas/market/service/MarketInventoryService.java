@@ -5,6 +5,8 @@ import br.com.bahas.market.entities.MarketItem;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @AllArgsConstructor
 public class MarketInventoryService {
@@ -24,5 +26,9 @@ public class MarketInventoryService {
 
     public List<MarketItem> getAllItems() {
         return marketInventoryCache.listAll();
+    }
+
+    public Optional<MarketItem> findByTransactionId(UUID uuid) {
+        return marketInventoryCache.findByTransactionId(uuid);
     }
 }
