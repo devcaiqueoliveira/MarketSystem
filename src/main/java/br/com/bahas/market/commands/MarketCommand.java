@@ -22,7 +22,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class MarketCommand implements CommandExecutor {
 
-    private final MarketInventoryService marketInventoryService;
+    private final MarketInventoryService service;
 
     private final MarketInventoryHolder inventoryHolder = new MarketInventoryHolder();
 
@@ -75,7 +75,7 @@ public class MarketCommand implements CommandExecutor {
 
             MarketItem marketItem = MarketItemMapper.toMarketItem(handItem, player.getUniqueId(), price);
 
-            marketInventoryService.addItemOnMarket(marketItem);
+            service.addItemOnMarket(marketItem);
 
             ItemStack visualItem = MarketItemMapper.toVisualItem(plugin, marketItem);
 
