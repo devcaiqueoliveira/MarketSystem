@@ -13,22 +13,22 @@ public class MarketInventoryCache implements MarketRepository {
     private List<MarketItem> items = new ArrayList<>();
 
     @Override
-    public void add(MarketItem marketItem) {
+    public void save(MarketItem marketItem) {
         items.add(marketItem);
     }
     @Override
-    public void remove(MarketItem marketItem) {
+    public void delete(MarketItem marketItem) {
         items.remove(marketItem);
     }
 
     @Override
-    public List<MarketItem> listAll() {
+    public List<MarketItem> findAll() {
         return new ArrayList<>(items);
     }
 
     @Override
     public Optional<MarketItem> findByTransactionId(UUID uuid) {
-        return listAll().stream()
+        return findAll().stream()
                 .filter(item -> item.getTransactionUUID().equals(uuid))
                 .findFirst();
     }

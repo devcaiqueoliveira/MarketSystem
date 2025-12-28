@@ -17,11 +17,11 @@ public class MarketInventoryService {
         if (item.getPrice() < 0) {
             throw new IllegalArgumentException("O preço do item não pode ser negativo.");
         }
-        marketInventoryCache.add(item);
+        marketInventoryCache.save(item);
     }
 
     public void removeItemFromMarket(MarketItem item) {
-        marketInventoryCache.remove(item);
+        marketInventoryCache.delete(item);
     }
 
     public List<MarketItem> getAllItems() {

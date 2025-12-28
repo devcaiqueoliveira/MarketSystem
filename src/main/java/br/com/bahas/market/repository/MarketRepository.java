@@ -8,11 +8,8 @@ import java.util.UUID;
 
 public interface MarketRepository {
 
-    void add(MarketItem marketItem);
-
-    void remove(MarketItem marketItem);
-
-    List<MarketItem> listAll();
-
+    void save(MarketItem marketItem);
+    void delete(MarketItem marketItem);
+    List<MarketItem> findAll();
     Optional<MarketItem> findByTransactionId(UUID uuid);
 }
