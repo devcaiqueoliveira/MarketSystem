@@ -4,7 +4,7 @@ import br.com.bahas.market.config.MessageConfig;
 import br.com.bahas.market.entities.MarketItem;
 import br.com.bahas.market.inventory.MarketInventoryHolder;
 import br.com.bahas.market.service.FakeEconomyService;
-import br.com.bahas.market.service.MarketInventoryService;
+import br.com.bahas.market.service.MarketService;
 import br.com.bahas.market.utils.MarketKeys;
 import lombok.AllArgsConstructor;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
@@ -25,7 +25,7 @@ import java.util.UUID;
 public class MarketInventoryListener implements Listener {
 
     private final JavaPlugin plugin;
-    private final MarketInventoryService marketInventoryService;
+    private final MarketService service;
     private final FakeEconomyService economyService;
     private final MessageConfig messageConfig;
 
@@ -49,61 +49,27 @@ public class MarketInventoryListener implements Listener {
 
         UUID transactionId = UUID.fromString(transactionIdStr);
 
-        Optional<MarketItem> itemOpt = marketInventoryService.findByTransactionId(transactionId);
-
-        if (itemOpt.isEmpty()) {
-            messageConfig.send(player, "messages.errors.item-already-sold");
-            event.getInventory().remove(clicked);
-            return;
-        }
+        Optional<MarketItem> itemOpt = service.findByTransactionId(transactionId);
 
         MarketItem marketItem = itemOpt.get();
         boolean isOwner = marketItem.getSellerUUID().equals(player.getUniqueId());
 
         if (isOwner) {
             if (event.isRightClick()) {
-                handleRemoveItem(player, marketItem, clicked, event);
+                boolean success = service.processWithdraw(player, marketItem);
+                if (success) {
+                    event.getInventory().remove(clicked);
+                }
                 return;
             }
-            player.sendMessage("Clique com o botão direito para remover seu item.");
+            messageConfig.send(player, "messages.warn.right-click-to-remove");
             return;
         }
-        handleBuyItem(player, marketItem, clicked, event);
-
-    }
-
-    private void handleRemoveItem(Player player, MarketItem marketItem, ItemStack visualItem, InventoryClickEvent event) {
-        if (player.getInventory().firstEmpty() == -1) {
-            messageConfig.send(player, "messages.errors.inventory-full");
-            return;
+        boolean success = service.purchaseItem(player, marketItem);
+        if (success) {
+            event.getInventory().remove(clicked);
         }
-
-        player.getInventory().addItem(marketItem.getItemStack());
-
-        marketInventoryService.removeItemFromMarket(marketItem);
-
-        event.getInventory().remove(visualItem);
-
-        messageConfig.send(player, "messages.success.item-removed");
     }
 
-    private void handleBuyItem(Player buyer, MarketItem marketItem, ItemStack visualitem, InventoryClickEvent event) {
-        if (!economyService.has(buyer.getUniqueId(), marketItem.getPrice())) {
-            messageConfig.send(buyer, "messages.errors.insufficient-funds",
-                    Placeholder.parsed("balance", String.valueOf(economyService.getBalance(buyer.getUniqueId()))));
-            return;
-        }
-
-        economyService.withdraw(buyer.getUniqueId(), marketItem.getPrice());
-        economyService.deposit(marketItem.getSellerUUID(), marketItem.getPrice());
-
-        buyer.getInventory().addItem(marketItem.getItemStack());
-
-        marketInventoryService.removeItemFromMarket(marketItem);
-        event.getInventory().remove(visualitem);
-
-        messageConfig.send(buyer, "messages.success.item-bought",
-                Placeholder.parsed("price", String.valueOf(marketItem.getPrice())));
-    }
 
 }

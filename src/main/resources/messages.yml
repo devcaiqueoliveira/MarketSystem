@@ -16,3 +16,7 @@ messages:
     item-bought: "<green>Você comprou o item por <gold>$<price><green>"
     item-removed: "<green>Item retirado do mercado."
     reload: "Reinicializção concluída."
+
+  warn:
+    right-click-to-remove: "<yellow>Clique com o botão direito para remover."
+    inventory-full: "<yellow>Seu inventário está lotado."

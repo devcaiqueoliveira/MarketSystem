@@ -6,6 +6,7 @@ import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -26,6 +27,8 @@ public class MessageConfig {
             plugin.saveResource("messages.yml", false);
         }
         config = YamlConfiguration.loadConfiguration(configFile);
+
+
     }
 
     public void reload() {

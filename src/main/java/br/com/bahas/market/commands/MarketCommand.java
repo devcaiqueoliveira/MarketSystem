@@ -4,7 +4,7 @@ import br.com.bahas.market.config.MessageConfig;
 import br.com.bahas.market.entities.MarketItem;
 import br.com.bahas.market.inventory.MarketInventoryHolder;
 import br.com.bahas.market.mapper.MarketItemMapper;
-import br.com.bahas.market.service.MarketInventoryService;
+import br.com.bahas.market.service.MarketService;
 import lombok.AllArgsConstructor;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Material;
@@ -22,7 +22,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class MarketCommand implements CommandExecutor {
 
-    private final MarketInventoryService service;
+    private final MarketService service;
 
     private final MarketInventoryHolder inventoryHolder = new MarketInventoryHolder();
 

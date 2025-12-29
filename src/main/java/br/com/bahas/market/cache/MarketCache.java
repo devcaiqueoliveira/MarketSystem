@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class MarketInventoryCache implements MarketRepository {
+public class MarketCache implements MarketRepository {
 
     private List<MarketItem> items = new ArrayList<>();
 
