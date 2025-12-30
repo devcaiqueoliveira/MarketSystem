@@ -11,5 +11,6 @@ public interface MarketRepository {
     void save(MarketItem marketItem);
     void delete(MarketItem marketItem);
     List<MarketItem> findAll();
-    Optional<MarketItem> findByTransactionId(UUID uuid);
+    List<MarketItem> findAllById(UUID uuid);
+    MarketItem findByPlayerName(UUID uuid, String value);
 }

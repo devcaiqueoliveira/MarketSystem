@@ -3,33 +3,40 @@ package br.com.bahas.market.cache;
 import br.com.bahas.market.entities.MarketItem;
 import br.com.bahas.market.repository.MarketRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class MarketCache implements MarketRepository {
 
-    private List<MarketItem> items = new ArrayList<>();
+    private Map<UUID, List<MarketItem>> items = new HashMap();
 
     @Override
     public void save(MarketItem marketItem) {
-        items.add(marketItem);
+        items.computeIfAbsent(marketItem.getSellerUUID(), id -> new ArrayList<>()).add(marketItem);
     }
+
     @Override
     public void delete(MarketItem marketItem) {
-        items.remove(marketItem);
+        items.remove(marketItem.getSellerUUID(), marketItem);
     }
 
     @Override
     public List<MarketItem> findAll() {
-        return new ArrayList<>(items);
+        return null;
     }
 
     @Override
-    public Optional<MarketItem> findByTransactionId(UUID uuid) {
-        return findAll().stream()
-                .filter(item -> item.getTransactionUUID().equals(uuid))
-                .findFirst();
+    public List<MarketItem> findAllById(UUID uuid) {
+        return items.getOrDefault(uuid, new ArrayList<>());
+    }
+
+    @Override
+    public MarketItem findByPlayerName(UUID id, String value) {
+        List<MarketItem> marketItems = items.get(id);
+        for (MarketItem item : marketItems) {
+            if (item.toString().equals(value)) {
+                return item;
+            }
+        }
+        return null;
     }
 }

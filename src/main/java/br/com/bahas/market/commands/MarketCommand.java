@@ -2,7 +2,8 @@ package br.com.bahas.market.commands;
 
 import br.com.bahas.market.config.MessageConfig;
 import br.com.bahas.market.entities.MarketItem;
-import br.com.bahas.market.inventory.MarketInventoryHolder;
+import br.com.bahas.market.inventory.impl.MarketInventory;
+import br.com.bahas.market.inventory.impl.PersonalMarketInventory;
 import br.com.bahas.market.mapper.MarketItemMapper;
 import br.com.bahas.market.service.MarketService;
 import lombok.AllArgsConstructor;
@@ -24,7 +25,9 @@ public class MarketCommand implements CommandExecutor {
 
     private final MarketService service;
 
-    private final MarketInventoryHolder inventoryHolder = new MarketInventoryHolder();
+    private final MarketInventory marketInventory;
+
+    private final PersonalMarketInventory personalMarketInventory;
 
     private final MessageConfig messageConfig;
 
@@ -36,13 +39,15 @@ public class MarketCommand implements CommandExecutor {
         if (!(commandSender instanceof Player player)) return false;
 
         if (args.length == 0) {
-            Inventory inventory = inventoryHolder.getInventory();
-            player.openInventory(inventory);
+            marketInventory.openInventory(player);
             return true;
         }
 
         switch (args[0].toLowerCase()) {
             case "vender" -> handleSell(player, args);
+            case "retirar" -> {
+                personalMarketInventory.openInventory(player);
+            }
             case "reload" -> {
                 messageConfig.reload();
                 messageConfig.send(player, "messages.success.reload");
@@ -79,7 +84,7 @@ public class MarketCommand implements CommandExecutor {
 
             ItemStack visualItem = MarketItemMapper.toVisualItem(plugin, marketItem);
 
-            inventoryHolder.getInventory().addItem(visualItem);
+            marketInventory.openInventory(player);
 
             player.getInventory().setItemInMainHand(null);
             messageConfig.send(player, "messages.success.item-listed",

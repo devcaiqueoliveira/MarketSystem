@@ -7,7 +7,6 @@ import br.com.bahas.market.service.FakeEconomyService;
 import br.com.bahas.market.service.MarketService;
 import br.com.bahas.market.utils.MarketKeys;
 import lombok.AllArgsConstructor;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,7 +17,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -31,9 +29,10 @@ public class MarketInventoryListener implements Listener {
 
     @EventHandler
     public void onMarketClick(InventoryClickEvent event) {
-        if (!(event.getInventory().getHolder() instanceof MarketInventoryHolder)) return;
-
-        event.setCancelled(true);
+        if (event.getInventory().getHolder() instanceof MarketInventoryHolder holder) {
+            event.setCancelled(true);
+            holder.handle(event);
+        }
 
         ItemStack clicked = event.getCurrentItem();
         if (clicked == null || !clicked.hasItemMeta()) return;
@@ -49,9 +48,9 @@ public class MarketInventoryListener implements Listener {
 
         UUID transactionId = UUID.fromString(transactionIdStr);
 
-        Optional<MarketItem> itemOpt = service.findByTransactionId(transactionId);
+        MarketItem item = service.findByTransactionId(transactionId);
 
-        MarketItem marketItem = itemOpt.get();
+        MarketItem marketItem = item.get();
         boolean isOwner = marketItem.getSellerUUID().equals(player.getUniqueId());
 
         if (isOwner) {

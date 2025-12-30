@@ -1,8 +1,8 @@
 package br.com.bahas.market.service;
 
-import br.com.bahas.market.cache.MarketCache;
 import br.com.bahas.market.config.MessageConfig;
 import br.com.bahas.market.entities.MarketItem;
+import br.com.bahas.market.repository.MarketRepository;
 import lombok.AllArgsConstructor;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.entity.Player;
@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class MarketService {
 
-    private final MarketCache cache;
+    private final MarketRepository repository;
     private final FakeEconomyService economyService;
     private final MessageConfig messageConfig;
 
@@ -22,7 +22,7 @@ public class MarketService {
         if (item.getPrice() < 0) {
             throw new IllegalArgumentException("O preço do item não pode ser negativo.");
         }
-        cache.save(item);
+        repository.save(item);
     }
 
     public boolean purchaseItem(Player buyer, MarketItem item) {
@@ -37,7 +37,7 @@ public class MarketService {
 
         economyService.withdraw(buyer.getUniqueId(), item.getPrice());
         economyService.deposit(item.getSellerUUID(), item.getPrice());
-        cache.delete(item);
+        repository.delete(item);
         buyer.getInventory().addItem(item.getItemStack());
 
         messageConfig.send(buyer, "messages.succes.item-bought",
@@ -49,7 +49,7 @@ public class MarketService {
         if (isInventoryFull(owner)) {
             return false;
         }
-        cache.delete(item);
+        repository.delete(item);
         owner.getInventory().addItem(item.getItemStack());
 
         messageConfig.send(owner, "messages.success.item-removed");
@@ -57,13 +57,13 @@ public class MarketService {
     }
 
     public List<MarketItem> getItemsBySeller(UUID sellerId) {
-        return cache.findAll().stream()
+        return repository.findAll().stream()
                 .filter(item -> item.getSellerUUID().equals(sellerId))
                 .toList();
     }
 
     public Optional<MarketItem> findByTransactionId(UUID uuid) {
-        return cache.findByTransactionId(uuid);
+        return repository.findByTransactionId(uuid);
     }
 
     private boolean isInventoryFull(Player player) {
